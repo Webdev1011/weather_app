@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,6 +8,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
+import Button from "@mui/material/Button";
 
 function CapitalWeather({ capitalWeather }) {
   return (
@@ -60,6 +62,9 @@ function CapitalWeather({ capitalWeather }) {
           </Table>
         </TableContainer>
       </Box>
+      <Link to="/">
+        <Button variant="contained">Back to Home</Button>
+      </Link>
     </Container>
   );
 }
