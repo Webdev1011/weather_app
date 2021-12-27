@@ -10,7 +10,8 @@ function App() {
   const [btnDisabled, setBtnDisabled] = useState(true);
   const textRef = useRef();
   const [country, setCountry] = useState("");
-  const [dataIsReturned, setDataIsReturned] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
+  const [navigateToVar, setNavigateToVar] = useState("/");
   const [countryData, setCountryData] = useState({
     name: "",
     capital: "",
@@ -26,6 +27,7 @@ function App() {
     precip: "",
   });
   function getCountryDetails() {
+    setShowLoading(true);
     fetch(`https://restcountries.com/v3.1/name/${country}`)
       .then((res) => res.json())
       .then((json) => {
@@ -38,28 +40,35 @@ function App() {
             lng: data.latlng[1],
             flag: data.flags["png"],
           });
-          setDataIsReturned(true);
         });
+        setShowLoading(false);
+        setNavigateToVar("/country");
+      })
+      .catch((error) => {
+        alert("Write full country name.");
+        setShowLoading(false);
       });
   }
   function getCapitalDetails() {
+    setShowLoading(true);
     fetch(
       `http://api.weatherstack.com/current?access_key=c63901e6269dcb53df1b52bcf39d5474&query=${countryData["capital"]}`
     )
       .then((res) => res.json())
       .then((json) => {
-        console.log(json);
-        // json.map((data, key) => {
-        // setCountryData({
-        //   name: data.name.common,
-        //   capital: data.capital,
-        //   population: data.population,
-        //   lat: data.latlng[0],
-        //   lng: data.latlng[1],
-        //   flag: data.flags["png"],
-        // });
-        // setDataIsReturned(true);
-        // });
+        setCapitalWeather({
+          temperature: json.current.temperature,
+          weather_icon: json.current.weather_icons[0],
+          wind_speed: json.current.wind_speed,
+          precip: json.current.precip,
+        });
+        setShowLoading(false);
+        setNavigateToVar("/capital-weather");
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("No Data Found.");
+        setShowLoading(false);
       });
   }
   const textChanged = () => {
@@ -76,35 +85,41 @@ function App() {
         <Route
           path="/"
           element={
-            <Homepage
-              btnDisabled={btnDisabled}
-              textRef={textRef}
-              textChanged={textChanged}
-              country={country}
-              getCountryDetails={getCountryDetails}
-            />
+            showLoading ? (
+              <h1> Loading </h1>
+            ) : (
+              <Homepage
+                btnDisabled={btnDisabled}
+                textRef={textRef}
+                textChanged={textChanged}
+                country={country}
+                getCountryDetails={getCountryDetails}
+                navigateToVar={navigateToVar}
+              />
+            )
           }
         />
         <Route
           path="/country"
           element={
-            dataIsReturned ? (
+            showLoading ? (
+              <h1> Loading </h1>
+            ) : (
               <Country
                 countryData={countryData}
                 getCapitalDetails={getCapitalDetails}
+                navigateToVar={navigateToVar}
               />
-            ) : (
-              <h1> Loading </h1>
             )
           }
         />
         <Route
           path="/capital-weather"
           element={
-            dataIsReturned ? (
-              <CapitalWeather capitalWeather={capitalWeather} />
-            ) : (
+            showLoading ? (
               <h1> Loading </h1>
+            ) : (
+              <CapitalWeather capitalWeather={capitalWeather} />
             )
           }
         />
